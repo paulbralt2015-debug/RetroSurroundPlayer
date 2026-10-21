@@ -1,0 +1,45 @@
+name: Build RetroSurround Player for Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: Download project source
+        uses: actions/checkout@v4
+
+      - name: Install Qt 6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          host: windows
+          target: desktop
+          arch: win64_msvc2022_64
+          modules: qtmultimedia
+
+      - name: Configure project
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile application
+        run: cmake --build build --config Release --parallel
+
+      - name: Prepare Windows application
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release
+          Copy-Item build/Release/RetroSurroundPlayer.exe release/
+          windeployqt --release --compiler-runtime release/RetroSurroundPlayer.exe
+
+      - name: Upload Windows application
+        uses: actions/upload-artifact@v4
+        with:
+          name: RetroSurroundPlayer-Windows-x64
+          path: release/
+          if-no-files-found: error
