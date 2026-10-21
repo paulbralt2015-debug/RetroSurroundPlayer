@@ -27,3 +27,23 @@ jobs:
 
       - name: Compile application
         run: cmake --build build --config Release --parallel
+
+      - name: Package application
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release
+          $exe = Get-ChildItem build -Filter RetroSurroundPlayer.exe -Recurse |
+            Select-Object -First 1
+          if (-not $exe) {
+            throw "RetroSurroundPlayer.exe introuvable après compilation."
+          }
+          Copy-Item $exe.FullName release/
+          windeployqt --release --compiler-runtime release/RetroSurroundPlayer.exe
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: RetroSurroundPlayer-Windows-x64
+          path: release/
+          if-no-files-found: error
+          retention-days: 7
