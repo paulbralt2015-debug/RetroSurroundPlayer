@@ -16,7 +16,11 @@ add_executable(RetroSurroundPlayer
     src/SurroundProcessor.h
     src/SurroundProcessor.cpp
 )
-target_link_libraries(RetroSurroundPlayer PRIVATE Qt6::Widgets Qt6::Multimedia)
+target_link_libraries(RetroSurroundPlayer PRIVATE
+    Qt6::Widgets
+    Qt6::Multimedia
+    Qt6::MultimediaWidgets
+)
 
 # Prototype note:
 # Qt Multimedia handles playback. The DSP class is an initial matrix-surround
