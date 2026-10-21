@@ -4,8 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   build:
@@ -25,21 +23,7 @@ jobs:
           modules: qtmultimedia
 
       - name: Configure project
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build
 
       - name: Compile application
         run: cmake --build build --config Release --parallel
-
-      - name: Prepare Windows application
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Force -Path release
-          Copy-Item build/Release/RetroSurroundPlayer.exe release/
-          windeployqt --release --compiler-runtime release/RetroSurroundPlayer.exe
-
-      - name: Upload Windows application
-        uses: actions/upload-artifact@v4
-        with:
-          name: RetroSurroundPlayer-Windows-x64
-          path: release/
-          if-no-files-found: error
